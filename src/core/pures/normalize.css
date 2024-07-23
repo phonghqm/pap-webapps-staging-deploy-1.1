@@ -1,0 +1,94 @@
+.ant-select {
+  height: 44px !important;
+}
+
+.ant-select-selector {
+  border-radius: 0.75rem !important;
+}
+
+.ant-picker {
+  height: 44px;
+  border-radius: 0.75rem;
+}
+
+.html-block ol {
+  counter-reset: item;
+}
+
+.html-block ul,
+.html-block ol {
+  margin-block-start: 0.5em;
+  margin-inline-start: 0em;
+  padding-inline-start: 1em;
+}
+
+.html-block ol > li {
+  counter-increment: item;
+}
+
+.html-block ol ol > li {
+  display: block;
+}
+
+.html-block ol ol > li:before {
+  content: counters(item, ".") ". ";
+  margin-left: -10px;
+}
+
+.html-block ol.marker-bold > li::marker,
+.html-block ol.marker-bold > li::before {
+  font-weight: bold;
+}
+
+.html-block ol.marker-cyan > li::marker,
+.html-block ol.marker-cyan > li::before {
+  color: #5959f7;
+}
+
+.html-block ol.h2 > li::marker,
+.html-block ol.h2 > li::before {
+  font-size: 1.875em;
+}
+
+.html-block ol.h3 > li::marker,
+.html-block ol.h3 > li::before {
+  font-size: 1.17em;
+}
+
+.cyan {
+  color: #5959f7;
+}
+
+.indent {
+  text-indent: 1rem;
+}
+
+.upload-document-multiple .ant-upload-select {
+  background-color: #ebebff !important;
+  margin: 0 !important;
+}
+
+.ant-input-disabled,
+.ant-select-disabled .ant-select-selector {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+/* .ant-select-show-search.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  height: auto;
+}
+.ant-select-single.ant-select-show-arrow .ant-select-selection-item {
+  white-space: normal;
+  word-break: break-all;
+} */
+
+.ant-select-item-option-content {
+  height: auto;
+  word-break: break-word;
+  white-space: normal !important;
+}
+
+.ant-input-number-handler-wrap {
+  border-start-end-radius: 12px !important;
+  border-end-end-radius: 12px !important;
+}

@@ -1,0 +1,98 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.ant-form-item-label {
+  padding-bottom: 4px !important;
+}
+
+.ant-form-item-label label {
+  color: #5a6170 !important;
+  font-size: 0.75rem !important;
+}
+
+.ant-form-item {
+  margin-bottom: 10px;
+}
+
+.ant-form-item-explain-error {
+  font-size: 0.75rem;
+}
+
+.ant-tag {
+  margin-right: 0;
+}
+
+.checkbox-scroll-agree .ant-checkbox-inner {
+  box-sizing: content-box;
+  border: 2px solid #5959f7;
+}
+
+@media screen and (max-width: 540px) {
+  .checkbox-scroll-agree .ant-checkbox-inner {
+    border: 1px solid #5959f7;
+  }
+}
+
+/* FORM CHECK PASSWORD */
+
+.pw-container {
+  width: 300px;
+  max-width: 100%;
+  margin: auto;
+  margin-top: 25dvh;
+  text-align: center;
+}
+
+.pw-input {
+  padding: 5px 10px;
+}
+
+.pw-error {
+  font-size: 11px;
+  display: block;
+  color: red;
+  margin-block: 10px;
+}
+
+.pw-btn {
+  display: block;
+  margin: 10px auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media screen and (max-width: 540px) {
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  .pw-input {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+.dropdown-select .rc-virtual-list-holder {
+  max-height: none !important;
+  overflow: visible !important;
+}
