@@ -1,3 +1,4 @@
+import { request } from "utils/request";
 import { IMAGE_STATUS } from "./../../common/constants";
 import { SubmitApplicationProfile } from "modules/Auth/type";
 
@@ -287,4 +288,12 @@ export type SubmitUpdateApplicationRequest = {
   os_info: OperatingSystem;
   removed_image_ids: string[];
   react_app_version?: string;
+};
+
+export type MyInfoRequest = {
+  redirect: string;
+  attributes: string[];
+};
+export type PollMyInfoRequest = {
+  token: string;
 };

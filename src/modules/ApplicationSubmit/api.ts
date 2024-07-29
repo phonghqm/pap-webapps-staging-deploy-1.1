@@ -1,12 +1,14 @@
-import API from 'common/API';
-import request from 'utils/request';
+import API from "common/API";
+import request from "utils/request";
 import {
   ListProfilesResponse,
   SubmitUpdateApplicationRequest,
   SubmitResponse,
   UpdateSubmitResponse,
   UserUpdateFileActionLogRequest,
-} from './type';
+  MyInfoRequest,
+  PollMyInfoRequest,
+} from "./type";
 
 const apis = {
   submit: (data: SubmitUpdateApplicationRequest) =>
@@ -15,16 +17,20 @@ const apis = {
     request.put<UpdateSubmitResponse>(API.UPDATE_SUBMIT, data),
   getProfiles: () => request.get<ListProfilesResponse>(API.LIST_PROFILES),
 
-  debug: (data: any) => request.post('/debug', data),
+  debug: (data: any) => request.post("/debug", data),
 
   logUserUpdateFileAction: (data: UserUpdateFileActionLogRequest) =>
-    request.put('/profiles/user-update-file', data),
+    request.put("/profiles/user-update-file", data),
   getGuildeDocumentNeeded: () => request.get(API.DOCUMENT_NEEDED),
   saveApplication: (data: SubmitUpdateApplicationRequest) =>
     request.put<any>(API.SAVE_APPLICATION, data),
   saveCreatingProfile: (data: SubmitUpdateApplicationRequest) =>
     request.post<any>(API.SAVE_APPLICATION, data),
   getEkycImage: () => request.get(API.GET_EKYC),
+  requestMyInfo: (data: MyInfoRequest) =>
+    request.post(API.REQUEST_MYINFO, data),
+  pollMyInfoData: (data: PollMyInfoRequest) =>
+    request.post(API.POLL_MYINFO_DATA, data),
 };
 
 export default apis;

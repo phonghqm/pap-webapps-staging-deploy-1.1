@@ -32,6 +32,8 @@ const API = {
   CONFIRM_OTP_SIGNUP: "profiles/confirm-otp-sign-up",
   GET_EKYC: "profiles/ekyc-image ",
   ADD_ADDRESS: "/addresses/create-address",
+  REQUEST_MYINFO: "/singpass/myInfo",
+  POLL_MYINFO_DATA: "/singpass/poll-data",
 };
 
 export default API;

@@ -1,39 +1,40 @@
-import { LogIn, SignUp, TermConfirm } from 'modules/Auth';
-import PATH from './path';
-import { Contact, NotFound, TermCondition } from 'modules/Static';
-import ApplicationSubmit from 'modules/ApplicationSubmit/Suspense';
-import SplashPage from 'modules/Splash';
-import Result from 'modules/Result/Suspense';
+import { LogIn, SignUp, TermConfirm } from "modules/Auth";
+import PATH from "./path";
+import { Contact, NotFound, TermCondition } from "modules/Static";
+import ApplicationSubmit from "modules/ApplicationSubmit/Suspense";
+import SplashPage from "modules/Splash";
+import Result from "modules/Result/Suspense";
+import SingPassSuspense from "modules/Singpass/Suspense";
 
 const ROUTES = [
   {
-    key: 'home',
+    key: "home",
     path: PATH.HOME,
     Component: SplashPage,
   },
   {
-    key: 'term-confirm',
+    key: "term-confirm",
     path: PATH.TERM_CONFIRM,
     Component: TermConfirm,
   },
 
   {
-    key: 'application-submit',
+    key: "application-submit",
     path: `${PATH.APPLICATION_SUBMIT}/*`,
     Component: ApplicationSubmit,
   },
   {
-    key: 'contact',
+    key: "contact",
     path: PATH.CONTACT,
     Component: Contact,
   },
   {
-    key: 'login',
+    key: "login",
     path: PATH.LOGIN,
     Component: LogIn,
   },
   {
-    key: 'signup',
+    key: "signup",
     path: PATH.SIGNUP,
     Component: SignUp,
   },
@@ -43,14 +44,19 @@ const ROUTES = [
   //   Component: Intro,
   // },
   {
-    key: 'term-condition',
+    key: "term-condition",
     path: PATH.TERM_CONDITION,
     Component: TermCondition,
   },
   {
-    key: 'result',
+    key: "result",
     path: `${PATH.RESULT}/*`,
     Component: Result,
+  },
+  {
+    key: "restrive-info",
+    path: `${PATH.RESTRIVE_INFO}/*`,
+    Component: SingPassSuspense,
   },
   // {
   //   key: 'faq',
@@ -58,8 +64,8 @@ const ROUTES = [
   //   Component: Faq,
   // },
   {
-    key: '404',
-    path: '*',
+    key: "404",
+    path: "*",
     Component: NotFound,
   },
 ];

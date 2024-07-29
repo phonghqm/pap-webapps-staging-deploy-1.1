@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useCoordination, useTrackViewPage } from "hooks";
 import { useAppDispatch, useAppSelector } from "appRedux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PATH, { SUBMIT_PATH } from "common/path";
 import { addProfile, resetProfiles, updateCoordination } from "../slice";
 import { PAPBackButton, PAPBottomButton } from "core/pures";
@@ -15,6 +15,7 @@ import { saveCache } from "utils/cache";
 import { useTranslation } from "react-i18next";
 import { EVENT_NAME, logGAEvent } from "utils/googleAnalytics";
 import { shallowEqual } from "react-redux";
+import { asyncRequestMyInfo } from "modules/Singpass/slice";
 
 function SelectApplication(): JSX.Element {
   useTrackViewPage(EVENT_NAME.PAGE_CHOOSE_TYPE_REGISTRANT);
@@ -30,6 +31,8 @@ function SelectApplication(): JSX.Element {
     (state) => [state.submit.hospital, state.submit.pcCode],
     shallowEqual
   );
+  let [searchParams] = useSearchParams();
+  console.log("searchParams: ", searchParams);
 
   const handleNext = useCallback(() => {
     dispatch(resetProfiles());
@@ -75,7 +78,12 @@ function SelectApplication(): JSX.Element {
         break;
       }
     }
-
+    dispatch(
+      asyncRequestMyInfo({
+        redirect: "https://google.com",
+        attributes: ["name", "email", "mobileno"],
+      })
+    );
     navigate(`.${SUBMIT_PATH.EKYC}`);
   }, [authPhone, option, hospital, pcCode, dispatch, navigate]);
 
@@ -102,7 +110,7 @@ function SelectApplication(): JSX.Element {
         </SelectContainer>
       </Container>
       <PAPBottomButton
-        text={t("CONTINUE")}
+        text={t("RESTRIVE_INFO")}
         type="primary"
         onClick={handleNext}
       />

@@ -1,18 +1,20 @@
-import { Action, ThunkAction, configureStore } from '@reduxjs/toolkit';
-import submit from 'modules/ApplicationSubmit/slice';
-import auth from 'modules/Auth/slice';
-import config from 'modules/Config/slice';
-import logger from 'redux-logger';
+import { Action, ThunkAction, configureStore } from "@reduxjs/toolkit";
+import submit from "modules/ApplicationSubmit/slice";
+import auth from "modules/Auth/slice";
+import config from "modules/Config/slice";
+import singpass from "modules/Singpass/slice";
+import logger from "redux-logger";
 
 export const store = configureStore({
   reducer: {
     auth,
     submit,
     config,
+    singpass,
   },
   middleware: (getDefaultMiddleware: () => any) => {
     const mid = getDefaultMiddleware();
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       return mid;
     }
     return mid.concat(logger);

@@ -2,32 +2,32 @@ import {
   ActionReducerMapBuilder,
   PayloadAction,
   createSlice,
-} from '@reduxjs/toolkit';
-import { AddProfile, DoneData, ImageResponse, ProfileForm } from './type';
-import { OWNER_RELATIVE, STATUS_PROFILE } from 'common/constants';
-import { decodeText, getProfilesDataFromResponse } from 'utils/helpers';
+} from "@reduxjs/toolkit";
+import { AddProfile, DoneData, ImageResponse, ProfileForm } from "./type";
+import { OWNER_RELATIVE, STATUS_PROFILE } from "common/constants";
+import { decodeText, getProfilesDataFromResponse } from "utils/helpers";
 import {
   wrapCreateAsyncThunk,
   wrapCreateAsyncThunkNoPayload,
-} from 'utils/thunks';
-import { AGREE_PAYMENT } from 'common/data';
-import { SubmitApplicationProfile } from 'modules/Auth/type';
-import confirmApis from 'modules/Result/api';
-import apis from './api';
-import authApi from 'modules/Auth/api';
-import { updateToken } from 'modules/Auth/slice';
+} from "utils/thunks";
+import { AGREE_PAYMENT } from "common/data";
+import { SubmitApplicationProfile } from "modules/Auth/type";
+import confirmApis from "modules/Result/api";
+import apis from "./api";
+import authApi from "modules/Auth/api";
+import { updateToken } from "modules/Auth/slice";
 import {
   IS_SUBMIT_APPLICATION,
   getToken,
   localStorageService,
   setToken,
-} from 'utils/localStorage';
+} from "utils/localStorage";
 
 interface SubmitApplicationState {
   data: ProfileForm[];
   coordination: [number, number] | null;
   done?: DoneData;
-  showPopupResult?: 'submit' | 'update';
+  showPopupResult?: "submit" | "update";
   profilePage: boolean;
   submitApplications: SubmitApplicationProfile[];
   reSubmit: boolean;
@@ -103,7 +103,7 @@ function updateReSubmitReducer(
 
 function updateShowPopUpResultReducer(
   state: SubmitApplicationState,
-  action: PayloadAction<'submit' | 'update' | undefined>
+  action: PayloadAction<"submit" | "update" | undefined>
 ) {
   state.reSubmit = false;
   state.showPopupResult = action.payload;
@@ -128,18 +128,18 @@ function addProfileReducer(
     dob: null,
     is_present: action.payload.is_present,
     papers: [],
-    id_card_front: '',
-    id_card_back: '',
+    id_card_front: "",
+    id_card_back: "",
     ekyc_info: {
-      portrait: '',
-      id_card_kind: '',
-      extra_full_name: '',
-      extra_dob: '',
-      extra_idcard_number: '',
-      extra_gender: '',
-      extra_pr_address: '',
-      extra_nationality: '',
-      extra_expired_date: '',
+      portrait: "",
+      id_card_kind: "",
+      extra_full_name: "",
+      extra_dob: "",
+      extra_idcard_number: "",
+      extra_gender: "",
+      extra_pr_address: "",
+      extra_nationality: "",
+      extra_expired_date: "",
     },
     address_info: {
       resident: {
@@ -227,7 +227,7 @@ function updateSubmitApplicationProfileReducer(
 ) {
   const profiles = action.payload.profiles;
   const activeProfile =
-    profiles.find(item => item.active_status === 'ACTIVE') || profiles[0];
+    profiles.find((item) => item.active_status === "ACTIVE") || profiles[0];
   state.done = activeProfile;
   state.pcCode = activeProfile?.pc_code || action.payload.pc_code;
   state.submitApplications = activeProfile ? [activeProfile] : [];
@@ -239,8 +239,8 @@ function loadProfilesFromCacheReducer(
   action: PayloadAction<(string | null)[]>
 ) {
   const data = action.payload
-    .filter(d => d !== null)
-    .map(hexProfile => {
+    .filter((d) => d !== null)
+    .map((hexProfile) => {
       const profile = JSON.parse(decodeText(hexProfile as string));
       return {
         ...profile,
@@ -253,7 +253,7 @@ function loadProfilesFromCacheReducer(
     )
     .sort((a, b) => (b.is_present ? 1 : 0) - (a.is_present ? 1 : 0));
 
-  const pc_code = data.reduce((prev, curr) => prev || curr.pc_code, '');
+  const pc_code = data.reduce((prev, curr) => prev || curr.pc_code, "");
 
   state.data = data;
   state.pcCode = pc_code;
@@ -285,12 +285,12 @@ function updateSubmitOrUpdateErrorReducer(
 }
 /**************** Async Thunk Actions ************************/
 export const asyncApproveResult = wrapCreateAsyncThunk(
-  'submit/approveResult',
+  "submit/approveResult",
   confirmApis.confirmResult
 );
 
 export const asyncRejectResult = wrapCreateAsyncThunk(
-  'submit/rejectResult',
+  "submit/rejectResult",
   confirmApis.rejectResult,
   (res, dispatch) => {
     dispatch(
@@ -303,14 +303,14 @@ export const asyncRejectResult = wrapCreateAsyncThunk(
 );
 
 export const asyncGetApplicationData = wrapCreateAsyncThunkNoPayload(
-  'submit/getApplicationData',
+  "submit/getApplicationData",
   authApi.getProfile,
   (res, dispatch) => {
     const profileStatus = res.data.profiles[0].status;
     const isNew = profileStatus === STATUS_PROFILE.CREATING;
     dispatch(
       updateToken({
-        token: getToken() || '',
+        token: getToken() || "",
         phone: res.data.profiles[0].phone,
         stringee_token: res.data.stringee_token,
         isNew,
@@ -321,52 +321,52 @@ export const asyncGetApplicationData = wrapCreateAsyncThunkNoPayload(
 );
 
 export const asyncGetProfiles = wrapCreateAsyncThunkNoPayload(
-  'submit/getProfiles',
+  "submit/getProfiles",
   apis.getProfiles
 );
 
 export const asyncSubmitApplication = wrapCreateAsyncThunk(
-  'submit/submitApplication',
+  "submit/submitApplication",
   apis.submit,
   (res, dispatch) => {
     dispatch(
       updateToken({
-        token: res.data?.token || '',
+        token: res.data?.token || "",
         phone: res.data.phone,
-        stringee_token: res.data?.stringee_token || '',
+        stringee_token: res.data?.stringee_token || "",
       })
     );
-    dispatch(updateShowPopUpResult('submit'));
+    dispatch(updateShowPopUpResult("submit"));
     dispatch(asyncGetProfiles());
   }
 );
 
 export const asyncUpdateApplication = wrapCreateAsyncThunk(
-  'submit/updateApplication',
+  "submit/updateApplication",
   apis.updateSubmit,
   (_, dispatch) => {
-    dispatch(updateShowPopUpResult('update'));
+    dispatch(updateShowPopUpResult("update"));
     dispatch(asyncGetApplicationData());
   }
 );
 
 export const asyncSaveApplication = wrapCreateAsyncThunk(
-  'submit/saveApplication',
+  "submit/saveApplication",
   apis.saveApplication,
   (_, dispatch) => {
     dispatch(asyncGetApplicationData());
   }
 );
 export const asyncSaveCreatingProfile = wrapCreateAsyncThunk(
-  'submit/saveCreatingProfile',
+  "submit/saveCreatingProfile",
   apis.saveCreatingProfile,
   (res, dispatch) => {
     setToken(res.data.token);
     dispatch(
       updateToken({
-        token: res.data?.token || '',
+        token: res.data?.token || "",
         phone: res.data.phone,
-        stringee_token: res.data?.stringee_token || '',
+        stringee_token: res.data?.stringee_token || "",
         isNew: true,
       })
     );
@@ -375,14 +375,22 @@ export const asyncSaveCreatingProfile = wrapCreateAsyncThunk(
 );
 
 export const asyncLogUserUpdateAction = wrapCreateAsyncThunk(
-  'submit/logUserUpdateAction',
+  "submit/logUserUpdateAction",
   apis.logUserUpdateFileAction
 );
 
-export const trackLog = wrapCreateAsyncThunk('submit/trackLog', apis.debug);
+export const trackLog = wrapCreateAsyncThunk("submit/trackLog", apis.debug);
 
+export const asyncRequestMyInfo = wrapCreateAsyncThunk(
+  "submit/requestMyInfo",
+  apis.requestMyInfo
+);
+export const asyncPollMyInfoData = wrapCreateAsyncThunk(
+  "submit/pollMyInfoData",
+  apis.pollMyInfoData
+);
 const submitApplication = createSlice({
-  name: 'submit',
+  name: "submit",
   initialState: submitApplicationInitialState,
   reducers: {
     addProfileReducer,
@@ -407,22 +415,22 @@ const submitApplication = createSlice({
   },
   extraReducers: (builders: ActionReducerMapBuilder<SubmitApplicationState>) =>
     builders
-      .addCase(asyncApproveResult.pending, state => {
+      .addCase(asyncApproveResult.pending, (state) => {
         state.confirmResult.loading = true;
         state.confirmResult.error = null;
       })
-      .addCase(asyncApproveResult.fulfilled, state => {
+      .addCase(asyncApproveResult.fulfilled, (state) => {
         state.confirmResult.loading = false;
       })
       .addCase(asyncApproveResult.rejected, (state, action) => {
         state.confirmResult.loading = false;
         state.confirmResult.error = (action.payload || null) as ErrorRedux;
       })
-      .addCase(asyncRejectResult.pending, state => {
+      .addCase(asyncRejectResult.pending, (state) => {
         state.confirmResult.loading = true;
         state.confirmResult.error = null;
       })
-      .addCase(asyncRejectResult.fulfilled, state => {
+      .addCase(asyncRejectResult.fulfilled, (state) => {
         state.confirmResult.loading = false;
       })
       .addCase(asyncRejectResult.rejected, (state, action) => {
@@ -437,13 +445,14 @@ const submitApplication = createSlice({
         state.data = profiles;
         state.coordination = coordination;
       })
-      .addCase(asyncGetApplicationData.pending, state => {
+      .addCase(asyncGetApplicationData.pending, (state) => {
         state.getApplicationData.loading = true;
       })
       .addCase(asyncGetApplicationData.fulfilled, (state, action) => {
         const profiles = action.payload.data.profiles;
         const activeProfile =
-          profiles.find(item => item.active_status === 'ACTIVE') || profiles[0];
+          profiles.find((item) => item.active_status === "ACTIVE") ||
+          profiles[0];
         state.done = activeProfile;
         state.pcCode = activeProfile.pc_code;
         state.submitApplications = [activeProfile];
@@ -455,7 +464,7 @@ const submitApplication = createSlice({
         state.getApplicationData.loading = false;
         state.getApplicationData.error = (action.payload || null) as ErrorRedux;
       })
-      .addCase(asyncSubmitApplication.pending, state => {
+      .addCase(asyncSubmitApplication.pending, (state) => {
         state.submitOrUpdate.loading = true;
       })
       .addCase(asyncSubmitApplication.fulfilled, (state, action) => {
@@ -471,7 +480,7 @@ const submitApplication = createSlice({
         state.submitOrUpdate.loading = false;
         state.submitOrUpdate.error = (action.payload || null) as ErrorRedux;
       })
-      .addCase(asyncUpdateApplication.pending, state => {
+      .addCase(asyncUpdateApplication.pending, (state) => {
         state.submitOrUpdate.loading = true;
       })
       .addCase(asyncUpdateApplication.fulfilled, (state, action) => {
@@ -496,7 +505,7 @@ const submitApplication = createSlice({
         state.coordination = coordination;
       })
       .addCase(asyncSaveCreatingProfile.fulfilled, () => {
-        localStorageService.set('isSubmitApplication', false);
+        localStorageService.set("isSubmitApplication", false);
       })
       .addCase(asyncLogUserUpdateAction.fulfilled, () => {}),
 });
