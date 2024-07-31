@@ -1,5 +1,5 @@
 import { Route, RouteProps, Routes } from "react-router-dom";
-import { RESTRIVE_INFO_PATH, SUBMIT_PATH } from "common/path";
+import { RESTRIVE_INFO_PATH } from "common/path";
 import RetrieveInfo from "./containers/RetrieveInfo";
 
 const INNER_ROUTES = [

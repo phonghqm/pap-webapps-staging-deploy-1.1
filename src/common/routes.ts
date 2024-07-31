@@ -38,11 +38,7 @@ const ROUTES = [
     path: PATH.SIGNUP,
     Component: SignUp,
   },
-  // {
-  //   key: 'intro',
-  //   path: PATH.INTRO,
-  //   Component: Intro,
-  // },
+
   {
     key: "term-condition",
     path: PATH.TERM_CONDITION,

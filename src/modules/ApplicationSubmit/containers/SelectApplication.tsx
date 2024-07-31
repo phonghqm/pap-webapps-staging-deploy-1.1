@@ -32,7 +32,6 @@ function SelectApplication(): JSX.Element {
     shallowEqual
   );
   let [searchParams] = useSearchParams();
-  console.log("searchParams: ", searchParams);
 
   const handleNext = useCallback(() => {
     dispatch(resetProfiles());
@@ -78,12 +77,7 @@ function SelectApplication(): JSX.Element {
         break;
       }
     }
-    dispatch(
-      asyncRequestMyInfo({
-        redirect: "https://google.com",
-        attributes: ["name", "email", "mobileno"],
-      })
-    );
+
     navigate(`.${SUBMIT_PATH.EKYC}`);
   }, [authPhone, option, hospital, pcCode, dispatch, navigate]);
 
@@ -110,7 +104,7 @@ function SelectApplication(): JSX.Element {
         </SelectContainer>
       </Container>
       <PAPBottomButton
-        text={t("RESTRIVE_INFO")}
+        text={t("CONTINUE")}
         type="primary"
         onClick={handleNext}
       />

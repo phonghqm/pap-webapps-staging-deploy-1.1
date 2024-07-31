@@ -49,7 +49,7 @@
   "MALE": "Male",
   "FEMALE": "Female",
   "GENDER": "Gender",
-  "INCOME_MONTHLY": "Monthly Income",
+  "INCOME_MONTHLY": "Notice of Assessment - Latest Assessable Income (SGD)",
   "CURRENT_JOB": "Current job",
   "JOB_DETAIL": " Job Details",
   "JOB_DESCRIPTION_PLACEHOLDER": "",
@@ -350,5 +350,6 @@
   "ALL_K_TO_12": "All Offering (K to 12)",
   "PURELY_JHS": "Purely JHS",
   "PURELY_SHS": "Purely SHS",
-  "RESTRIVE_INFO": "Retrieve info"
+  "RESTRIVE_INFO": "Retrieve info",
+  "PASSPORD_NUMBER": "Passport number"
 }

@@ -4,12 +4,7 @@ import {
   MyInfoRequest,
   PollMyInfoRequest,
 } from "modules/ApplicationSubmit/type";
-
-const request = axios.create({
-  baseURL: process.env.REACT_APP_SINGPASS_API_URL,
-  timeout: 20 * 1000,
-  validateStatus: null,
-});
+import request from "utils/request";
 
 const headerConfig = {
   headers: {

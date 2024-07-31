@@ -419,7 +419,7 @@ export default function CommonInfoForm({
               label={t("HOUSE_TYPE")}
               rules={[{ required, message: t("PLEASE_INPUT") }]}
             >
-              <CommonConfigSelect name="house_type" />
+              <PAPInput />
             </Form.Item>
             <Form.Item
               name={["address_info", "resident", "is_owner"]}

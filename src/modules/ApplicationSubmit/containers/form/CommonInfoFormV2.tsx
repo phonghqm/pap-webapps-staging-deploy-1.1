@@ -36,8 +36,10 @@ import {
 import store, { useAppDispatch, useAppSelector } from "appRedux";
 import {
   convertProfileFormToProfile,
+  convertSingpassDataToFormData,
   getStringFromAddress,
   preventWhiteSpace,
+  str,
 } from "utils/helpers";
 import { EXPIRED_TOKEN, HOTLINE } from "common/constants";
 import { HotlineComponent } from "core/business";
@@ -74,13 +76,15 @@ import { Modal } from "antd";
 import { Description } from "modules/Result/components/WaitingModal";
 import { useCoordination } from "hooks";
 import { asyncAddAddress } from "modules/Config/slice";
+import { asyncPollMyInfoData } from "modules/Singpass/slice";
+import PATH from "common/path";
 
 type InfoFormProps = {
   is_patient: boolean;
   is_present: boolean;
   title: string;
   onSubmit: (values: any) => void;
-  data?: ProfileForm;
+  data?: any;
 };
 
 export default function CommonInfoFormV2({
@@ -105,6 +109,12 @@ export default function CommonInfoFormV2({
     (state) => [state.auth.phone, state.auth.token, state.auth.new],
     shallowEqual
   );
+  const [singpassData] = useAppSelector(
+    (state) => [state.singpass.singpassData],
+    shallowEqual
+  );
+
+  const singpassToken = localStorage.getItem("singpassToken");
 
   const [profiles, reSubmit, pcCode] = useAppSelector(
     (state) => [state.submit.data, state.submit.reSubmit, state.submit.pcCode],
@@ -320,96 +330,100 @@ export default function CommonInfoFormV2({
       });
   }, [form]);
 
-  const submitForm = useCallback(() => {
-    form
-      .validateFields()
-      .then((res) => {
-        const data = { ...res };
+  // const submitForm = useCallback(() => {
+  //   form
+  //     .validateFields()
+  //     .then((res) => {
+  //       const data = { ...res };
 
-        if (["HOUSEWIFE", "RETIREMENT"].includes(data?.job as string)) {
-          data.job_title = "NONE_OTHER_POSITION";
-        }
-        const convertedValue = {
-          ...data,
-          dob: data.dob ? data.dob?.format("YYYY-MM-DD") : null,
-          done: true,
-        };
-        if (convertedValue.is_present === 1) {
-          // register
-          logGAEvent(EVENT_NAME.BTN_FORM_REGISTRANT_NEXT);
-          dispatch(
-            updateProfile({
-              profile: { ...convertedValue, is_saved: true },
-              index: parseInt(index || "0", 10),
-            })
-          );
-        } else if (convertedValue.patient_relationship === "OWNER") {
-          // patient
-          logGAEvent(EVENT_NAME.BTN_FORM_PATIENT_NEXT);
+  //       if (["HOUSEWIFE", "RETIREMENT"].includes(data?.job as string)) {
+  //         data.job_title = "NONE_OTHER_POSITION";
+  //       }
+  //       const convertedValue = {
+  //         ...data,
+  //         dob: data.dob ? data.dob?.format("YYYY-MM-DD") : null,
+  //         done: true,
+  //       };
+  //       if (convertedValue.is_present === 1) {
+  //         // register
+  //         logGAEvent(EVENT_NAME.BTN_FORM_REGISTRANT_NEXT);
+  //         dispatch(
+  //           updateProfile({
+  //             profile: { ...convertedValue, is_saved: true },
+  //             index: parseInt(index || "0", 10),
+  //           })
+  //         );
+  //       } else if (convertedValue.patient_relationship === "OWNER") {
+  //         // patient
+  //         logGAEvent(EVENT_NAME.BTN_FORM_PATIENT_NEXT);
 
-          dispatch(
-            updateProfile({
-              profile: { ...convertedValue, is_saved: true },
-              index: parseInt(index || "2", 10),
-            })
-          );
-        } else {
-          // relative
-          const idx = parseInt(index || "0", 10);
-          dispatch(
-            updateProfile({
-              profile: { ...convertedValue, is_saved: true, is_new: false },
-              index: idx,
-            })
-          );
-          logGAEvent(EVENT_NAME.BTN_FORM_RELATIVE_NEXT);
-        }
-        const updatedProfiles = store.getState().submit.data;
+  //         dispatch(
+  //           updateProfile({
+  //             profile: { ...convertedValue, is_saved: true },
+  //             index: parseInt(index || "2", 10),
+  //           })
+  //         );
+  //       } else {
+  //         // relative
+  //         const idx = parseInt(index || "0", 10);
+  //         dispatch(
+  //           updateProfile({
+  //             profile: { ...convertedValue, is_saved: true, is_new: false },
+  //             index: idx,
+  //           })
+  //         );
+  //         logGAEvent(EVENT_NAME.BTN_FORM_RELATIVE_NEXT);
+  //       }
+  //       const updatedProfiles = store.getState().submit.data;
 
-        const updatedRemoveImage = store.getState().submit.removedImageIds;
+  //       const updatedRemoveImage = store.getState().submit.removedImageIds;
 
-        if (is_have_new) {
-          console.log("province: ", province);
-          console.log("city: ", city);
-          console.log("ward: ", ward);
+  //       if (is_have_new) {
+  //         console.log("province: ", province);
+  //         console.log("city: ", city);
+  //         console.log("ward: ", ward);
 
-          dispatch(
-            asyncAddAddress({
-              province: data.address_info.resident.city,
-              city: data.address_info.resident.district,
-              ward: data.address_info.resident.ward,
-            })
-          ).finally(() => {
-            if (data.address_info?.termporary) {
-              dispatch(
-                asyncAddAddress({
-                  province: data.address_info.termporary.city,
-                  city: data.address_info.termporary.district,
-                  ward: data.address_info.termporary.ward,
-                })
-              );
-            }
-          });
-        }
+  //         dispatch(
+  //           asyncAddAddress({
+  //             province: data.address_info.resident.city,
+  //             city: data.address_info.resident.district,
+  //             ward: data.address_info.resident.ward,
+  //           })
+  //         ).finally(() => {
+  //           if (data.address_info?.termporary) {
+  //             dispatch(
+  //               asyncAddAddress({
+  //                 province: data.address_info.termporary.city,
+  //                 city: data.address_info.termporary.district,
+  //                 ward: data.address_info.termporary.ward,
+  //               })
+  //             );
+  //           }
+  //         });
+  //       }
 
-        !buttonLoading && saveApplication(updatedProfiles, updatedRemoveImage);
-      })
+  //       !buttonLoading && saveApplication(updatedProfiles, updatedRemoveImage);
+  //     })
 
-      .catch((err) => {
-        console.log("err: ", err);
-        const errorText =
-          document.getElementsByClassName("ant-form-item-explain-error")?.[0] ||
-          null;
-        if (errorText) {
-          errorText.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-          });
-          return;
-        }
-      });
-  }, [form, dispatch, index, saveApplication, buttonLoading]);
+  //     .catch((err) => {
+  //       console.log("err: ", err);
+  //       const errorText =
+  //         document.getElementsByClassName("ant-form-item-explain-error")?.[0] ||
+  //         null;
+  //       if (errorText) {
+  //         errorText.scrollIntoView({
+  //           behavior: "smooth",
+  //           block: "center",
+  //           inline: "center",
+  //         });
+  //         return;
+  //       }
+  //     });
+  // }, [form, dispatch, index, saveApplication, buttonLoading]);
+
+  const navigateRestrive = () => {
+    return navigate(`${PATH.RESTRIVE_INFO}`);
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -454,6 +468,27 @@ export default function CommonInfoFormV2({
     setAddresses(list);
   }, [profiles, form, is_present]);
 
+  useEffect(() => {
+    if (singpassToken) {
+      setTimeout(() => {
+        dispatch(asyncPollMyInfoData({ token: singpassToken })).then((res) => {
+          if (res.payload.data) {
+            const convertedValue = convertSingpassDataToFormData(
+              res.payload.data,
+              data
+            );
+            form.setFieldsValue(convertedValue);
+            dispatch(
+              updateProfile({
+                profile: { ...convertedValue, is_saved: true },
+                index: parseInt(index || "0", 10),
+              })
+            );
+          }
+        });
+      }, 2000);
+    }
+  }, [dispatch, singpassToken]);
   return (
     <FormContainer>
       <Fixed>
@@ -465,6 +500,7 @@ export default function CommonInfoFormV2({
         onFinish={beforeSubmit}
         initialValues={{
           ...data,
+
           resident:
             getStringFromAddress(data?.address_info?.resident || {}) || null,
           termporary:
@@ -583,7 +619,7 @@ export default function CommonInfoFormV2({
             <Form.Item
               name="id_card_number"
               validateTrigger="onBlur"
-              label={t("ID_CARD")}
+              label={t("PASSPORD_NUMBER")}
               rules={[
                 {
                   required: required || is_present,
@@ -604,7 +640,7 @@ export default function CommonInfoFormV2({
               ]}
             >
               <PAPDatePicker
-                format="DD/MM/YYYY"
+                format="YYYY/MM/DD"
                 showToday={false}
                 placeholder={t("DOB_PLACEHOLDER")}
               />
@@ -680,7 +716,7 @@ export default function CommonInfoFormV2({
           </CustomCol>
           <CustomCol lg={8} md={12} xs={24}>
             <Title>{t("RESIDENT_ADDRESS")}</Title>
-            <AddressInputs
+            {/* <AddressInputs
               name="resident"
               form={form}
               defaultCity={defaultCity}
@@ -689,13 +725,20 @@ export default function CommonInfoFormV2({
               addresses={addresses}
               updateResident={updateResident}
               is_present={is_present}
-            />
+            /> */}
             <Form.Item
-              name={["address_info", "resident", "type"]}
+              name="address"
+              label={t("Address")}
+              rules={[{ required, message: t("PLEASE_INPUT") }]}
+            >
+              <PAPInput />
+            </Form.Item>
+            <Form.Item
+              name="house_type"
               label={t("HOUSE_TYPE")}
               rules={[{ required, message: t("PLEASE_INPUT") }]}
             >
-              <CommonConfigSelect name="house_type" />
+              <PAPInput />
             </Form.Item>
             <Form.Item
               name={["address_info", "resident", "is_owner"]}
@@ -957,13 +1000,8 @@ export default function CommonInfoFormV2({
         </Container>
         {
           <ButtonWrapper>
-            <SaveButton
-              onClick={() => {
-                submitForm();
-              }}
-              loading={buttonLoading}
-            >
-              {t("SAVE")}
+            <SaveButton onClick={navigateRestrive} loading={buttonLoading}>
+              {t("RESTRIVE_INFO")}
             </SaveButton>
             <HalfWidthButton onClick={validateAndSubmit} type="primary">
               {t("CONTINUE")}

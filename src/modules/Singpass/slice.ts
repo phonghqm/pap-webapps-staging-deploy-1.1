@@ -10,12 +10,14 @@ interface SingpassState {
   authToken: string;
   redirectUrl: string;
   tokenData: string;
+  singpassData: any;
 }
 
 const singpassInitialState: SingpassState = {
   authToken: "",
   redirectUrl: "",
   tokenData: "",
+  singpassData: {},
 };
 
 /****************** Async Thunk Actions ******************/
@@ -60,11 +62,11 @@ const singpassSlice = createSlice({
     updateTokenDataReducer,
   },
   extraReducers: (builders: ActionReducerMapBuilder<SingpassState>) =>
-    builders.addCase(asyncRequestMyInfo.fulfilled, (state, action) => {
-      console.log("action.payload: ", action.payload);
-
-      state.authToken = action.payload;
-    }),
+    builders
+      .addCase(asyncRequestMyInfo.fulfilled, (state, action) => {})
+      .addCase(asyncPollMyInfoData.fulfilled, (state, action) => {
+        state.singpassData = action.payload.data;
+      }),
 });
 
 export const {

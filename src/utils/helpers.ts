@@ -469,7 +469,7 @@ export function getDataFromOcr(dataResponse: OCRResponse, provinces: any) {
       extra_gender: data.gender,
       extra_pr_address: data.address,
     };
-    console.log("dataResponse", dataResponse);
+
     if (data.address) {
       const parseAddress = getInfoFormAddress(data.address, provinces);
       if (parseAddress) {
@@ -534,4 +534,80 @@ export function debounce<T extends (...args: any[]) => void>(
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), wait);
   };
+}
+
+export const convertSingpassDataToFormData = (data: any, oldData: any) => {
+  console.log("oldData: ", oldData);
+  console.log("data: ", data);
+  const rawData = { ...data };
+  const newData: any = {};
+  newData.full_name = str(rawData.aliasname);
+  newData.phone = "0" + str(data.mobileno?.nbr);
+  newData.email = str(data.email);
+  newData.id_card_number = str(data.passportnumber);
+  newData.dob = dayjs(str(data.dob));
+  newData.gender = str(data.sex);
+  if (data["noa-basic"]) {
+    newData.income = str(data["noa-basic"].amount)
+      ? formatMoney(str(data["noa-basic"].amount), 0, ".", ",")
+      : "";
+  }
+  newData.job = str(data.occupation);
+  newData.house_type =
+    str(data.housingtype) == "" ? str(data.hdbtype) : str(data.housingtype);
+
+  newData.address =
+    data.regadd.type == "SG"
+      ? str(data.regadd.country) == ""
+        ? ""
+        : str(data.regadd.block) +
+          " " +
+          str(data.regadd.building) +
+          " \n" +
+          "#" +
+          str(data.regadd.floor) +
+          "-" +
+          str(data.regadd.unit) +
+          " " +
+          str(data.regadd.street) +
+          " \n" +
+          "Singapore " +
+          str(data.regadd.postal)
+      : data.regadd.type == "Unformatted"
+        ? str(data.regadd.line1) + "\n" + str(data.regadd.line2)
+        : "";
+
+  return { ...newData };
+};
+
+//  singpass form format
+
+export function formatMoney(n: any, c: any, d: any, t: any) {
+  var c = isNaN((c = Math.abs(c))) ? 2 : c,
+    d = d == undefined ? "." : d,
+    t = t == undefined ? "," : t,
+    s = n < 0 ? "-" : "",
+    i: any = String(parseInt((n = Math.abs(Number(n) || 0).toFixed(c)))),
+    j: any = (j = i.length) > 3 ? j % 3 : 0;
+
+  return (
+    s +
+    (j ? i.substr(0, j) + t : "") +
+    i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) +
+    (c
+      ? d +
+        Math.abs(n - i)
+          .toFixed(c)
+          .slice(2)
+      : "")
+  );
+}
+
+// used to output data items with value or desc
+export function str(data: any) {
+  if (!data) return null;
+  if (data.value) return data.value;
+  else if (data.desc) return data.desc;
+  else if (typeof data == "string") return data;
+  else return "";
 }

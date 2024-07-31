@@ -1,25 +1,36 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { shallowEqual } from 'react-redux';
-import { createSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import qs from 'query-string';
-import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from 'appRedux';
-import { EKYC_STEP } from 'common/constants';
-import { SUBMIT_PATH } from 'common/path';
-import Layout from 'core/layout';
-import { PAPBackButton, PAPBottomButton } from 'core/pures';
-import { withPhone } from 'hoc';
-import { EkycItem } from 'modules/ApplicationSubmit/components';
-import { EkycType } from 'modules/ApplicationSubmit/enum';
-import { ImageResponse, ProfileForm } from 'modules/ApplicationSubmit/type';
-import Liveness from './Liveness';
-import IdCard from './IdCard';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { shallowEqual } from "react-redux";
+import {
+  createSearchParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import qs from "query-string";
+import styled from "styled-components";
+import { useAppDispatch, useAppSelector } from "appRedux";
+import { EKYC_STEP } from "common/constants";
+import PATH, { SUBMIT_PATH } from "common/path";
+import Layout from "core/layout";
+import { PAPBackButton, PAPBottomButton } from "core/pures";
+import { withPhone } from "hoc";
+import { EkycItem } from "modules/ApplicationSubmit/components";
+import { EkycType } from "modules/ApplicationSubmit/enum";
+import { ImageResponse, ProfileForm } from "modules/ApplicationSubmit/type";
+import Liveness from "./Liveness";
+import IdCard from "./IdCard";
 
-import { EVENT_NAME, logGAEvent } from 'utils/googleAnalytics';
-import { useTrackViewPage } from 'hooks';
-import apis from 'modules/ApplicationSubmit/api';
-import { updateLiveness, updateProfile } from 'modules/ApplicationSubmit/slice';
+import { EVENT_NAME, logGAEvent } from "utils/googleAnalytics";
+import { useTrackViewPage } from "hooks";
+import apis from "modules/ApplicationSubmit/api";
+import {
+  asyncRequestMyInfo,
+  updateLiveness,
+  updateProfile,
+} from "modules/ApplicationSubmit/slice";
+import { updateAuthToken, updateRedirectUrl } from "modules/Singpass/slice";
+import { setPhone } from "utils/localStorage";
 
 function Ekyc(): JSX.Element {
   const { search } = useLocation();
@@ -27,13 +38,13 @@ function Ekyc(): JSX.Element {
 
   switch (parse?.step) {
     case EKYC_STEP.PORTRAIT:
-      return <Liveness key='liveness' />;
+      return <Liveness key="liveness" />;
     case EKYC_STEP.FRONT:
-      return <IdCard key='id-card-front' type='front' />;
+      return <IdCard key="id-card-front" type="front" />;
     case EKYC_STEP.BACK:
-      return <IdCard key='id-card-back' type='back' />;
+      return <IdCard key="id-card-back" type="back" />;
     default:
-      return <EkycSteps key='main' />;
+      return <EkycSteps key="main" />;
   }
 }
 
@@ -42,12 +53,16 @@ function EkycSteps() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const data = useAppSelector(state => {
+  const data = useAppSelector((state) => {
     const profiles = state.submit.data;
     if (profiles?.length > 0) return profiles[0];
     return {} as ProfileForm;
   }, shallowEqual);
-
+  let hostname = window.location.origin;
+  const [authPhone] = useAppSelector(
+    (state) => [state.auth.phone],
+    shallowEqual
+  );
   const [ekycImage, setEkycImage] = useState<any>(null);
   const dispatch = useAppDispatch();
 
@@ -55,24 +70,24 @@ function EkycSteps() {
     () => [
       {
         index: 1,
-        title: t('LIVENESS_PORTRAIT'),
+        title: t("LIVENESS_PORTRAIT"),
         type: EkycType.Portrait,
-        description: t('LIVENESS_PORTRAIT_DESCRIPTION'),
-        fallbackImage: '/PortraitFallback.webp',
+        description: t("LIVENESS_PORTRAIT_DESCRIPTION"),
+        fallbackImage: "/PortraitFallback.webp",
         step: EKYC_STEP.PORTRAIT,
       },
       {
         index: 2,
-        title: t('LIVENESS_IDCARD_FRONT'),
+        title: t("LIVENESS_IDCARD_FRONT"),
         type: EkycType.IdCardFront,
-        fallbackImage: '/FrontID.webp',
+        fallbackImage: "/FrontID.webp",
         step: EKYC_STEP.FRONT,
       },
       {
         index: 3,
-        title: t('LIVENESS_IDCARD_BACK'),
+        title: t("LIVENESS_IDCARD_BACK"),
         type: EkycType.IdCardBack,
-        fallbackImage: '/BackID.webp',
+        fallbackImage: "/BackID.webp",
         step: EKYC_STEP.BACK,
       },
     ],
@@ -81,6 +96,18 @@ function EkycSteps() {
 
   const back = () => navigate(`..${SUBMIT_PATH.CHOOSE_APPLICATION}`);
 
+  useEffect(() => {
+    dispatch(
+      asyncRequestMyInfo({
+        redirect: `${hostname}/submit/form/1?init=true`,
+        attributes: ["name", "email", "mobileno"],
+      })
+    ).then((res) => {
+      dispatch(updateAuthToken(res.payload.data.token));
+      localStorage.setItem("singpassToken", res.payload.data.token);
+      dispatch(updateRedirectUrl(res.payload.data.url));
+    });
+  }, []);
   const next = useCallback(() => {
     const registerProfile = data;
     // After filling full information, move to next screen
@@ -89,6 +116,7 @@ function EkycSteps() {
       registerProfile.id_card_back &&
       registerProfile.ekyc_info?.portrait
     ) {
+      setPhone(authPhone);
       logGAEvent(EVENT_NAME.BTN_EKYC_CONFIRM_NEXT);
       navigate(`..${SUBMIT_PATH.FORM}/1?init=true`);
       return;
@@ -145,14 +173,14 @@ function EkycSteps() {
     const profile = {} as any;
     apis
       .getEkycImage()
-      .then(res => {
-        profile['id_card_front'] = res.data.id_card_front;
-        profile['id_card_back'] = res.data.id_card_back;
+      .then((res) => {
+        profile["id_card_front"] = res.data.id_card_front;
+        profile["id_card_back"] = res.data.id_card_back;
         setEkycImage(res.data);
         dispatch(updateLiveness(res.data.ekyc_info.portrait));
         dispatch(updateProfile({ profile, index: 1 }));
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
@@ -166,10 +194,10 @@ function EkycSteps() {
         }}
       />
       <Container>
-        <Title>{t('CREATE_ACCOUNT')}</Title>
-        <Description>{t('EKYC_DESCRIPTION')}</Description>
+        <Title>{t("CREATE_ACCOUNT")}</Title>
+        <Description>{t("EKYC_DESCRIPTION")}</Description>
         <EkycContainer>
-          {LIST_LIVENESS.map(item => (
+          {LIST_LIVENESS.map((item) => (
             <EkycItem
               key={item.index}
               index={item.index}
@@ -183,7 +211,7 @@ function EkycSteps() {
           ))}
         </EkycContainer>
       </Container>
-      <PAPBottomButton text={t('CONTINUE')} type='primary' onClick={next} />
+      <PAPBottomButton text={t("CONTINUE")} type="primary" onClick={next} />
     </Layout>
   );
 }
@@ -211,7 +239,7 @@ const Title = styled.h2`
 
 const Description = styled.p`
   font-size: 0.875rem;
-  color: ${props => props.theme.grey7};
+  color: ${(props) => props.theme.grey7};
   margin-block: 0.5rem;
 `;
 
